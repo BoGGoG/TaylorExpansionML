@@ -15,6 +15,9 @@ from source.data_generator import random_func_and_taylor
 x = symbols('x')
 consts = symbols('a b c d')
 rnd_fs_amount = 5
+x0 = 0
+taylor_order = 4
 
 
-print(random_func_and_taylor(x, consts, amount=rnd_fs_amount, max_depth=4))
+print(random_func_and_taylor([x, x0], consts, amount=rnd_fs_amount,
+    max_depth=4, taylor_order=taylor_order))
