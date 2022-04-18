@@ -19,6 +19,20 @@ def taylor(function, x0, n, x = sympy.Symbol('x')):
     return p
 
 def random_func_and_taylor(x_x0, consts, amount=1, max_depth=4, taylor_order=4, verbose=False):
+    """
+    Generate random functions according to the RandomFunctionGenerator module.
+
+    Arguments:
+        - `x_x0`: [x, x0] where x is the sympy symbol of the variable of the functions. x0 is the expansion point
+        - `consts`: sympy symbols of constants that should be randomly distributed in the functions
+        - `amount=1`: how many random functions you want
+        - `max_depth=4`: how deep functions should be nested. sin(cos(exp(x)))
+
+    Returns: [rnd_fs, rnd_fs_taylor, rnd_fs_taylor_coeffs] 
+        - `rnd_fs`: the random functions in sympy srepr form
+        - `rnd_fs_taylor`: the taylor expansion of the functions in sympy srepr form
+        - `rnd_fs_taylor`: the coefficients of the taylor expansion of the functions in sympy srepr form
+    """
     x = x_x0[0]
     x0 = x_x0[1]
     rnd_fs = []
@@ -40,3 +54,15 @@ def random_func_and_taylor(x_x0, consts, amount=1, max_depth=4, taylor_order=4, 
         elif verbose:
             print("Function does not have taylor expansion, skipping.")
     return [rnd_fs, rnd_fs_taylor, rnd_fs_taylor_coeffs]
+
+def export_functions_and_taylor(fs_and_taylor, filename):
+    """
+    Save the functions and its taylor expansions in a .csv file
+
+    Arguments:
+        - `fs_and_taylor`: [fs, taylors, taylor_coeffs] the functions, their taylor expansion and the coefficients of the expansion
+        - `filename`: The name of the file that the functions should be exportet to
+    """
+    fs, taylors, taylor_coeffs = fs_and_taylor
+    print("len(fs):", len(fs))
+    return 0
