@@ -4,6 +4,7 @@ import sympy
 from sympy import symbols, srepr, series, oo, zoo
 sys.path.append('../RandomFunctionGenerator/source')
 from RandomFunctionGenerator import generate_random_functions
+from tqdm import tqdm
 
 def factorial(n):
     if n <= 0:
@@ -42,8 +43,12 @@ def random_func_and_taylor(x_x0, consts, amount=1, max_depth=4, taylor_order=4, 
     rnd_fs_taylor = []
     rnd_fs_taylor_coeffs = []
 
+    pbar = tqdm(total=amount)
     while len(rnd_fs) < amount:
         f = generate_random_functions([x], consts, amount=1, max_depth=max_depth)[0]
+        if f in rnd_fs:
+            if verbose: print("function already exists, skipping")
+            continue
         f_taylor = taylor(f, x0, taylor_order, x)
         if verbose: 
             print("generated function:", f)
@@ -54,8 +59,10 @@ def random_func_and_taylor(x_x0, consts, amount=1, max_depth=4, taylor_order=4, 
             coeffs = sympy.Poly(f_taylor, x).all_coeffs()
             coeffs.reverse()
             rnd_fs_taylor_coeffs.append(coeffs)
+            pbar.update(1)
         elif verbose:
             print("Function does not have taylor expansion, skipping.")
+    pbar.close()
     return [rnd_fs, rnd_fs_taylor, rnd_fs_taylor_coeffs]
 
 def export_functions_and_taylor(fs_and_taylor, filename, verbose=True, representation_type="str"):

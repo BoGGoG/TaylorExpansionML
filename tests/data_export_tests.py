@@ -14,7 +14,7 @@ from source.data_generator import random_func_and_taylor, export_functions_and_t
 
 x = symbols('x')
 consts = symbols('a b c d')
-rnd_fs_amount = 3
+rnd_fs_amount = 40
 x0 = 0
 taylor_order = 4
 
