@@ -5,7 +5,6 @@ import sympy
 import os
 from sympy import symbols, srepr, series, oo, zoo
 from icecream import ic
-
 import inspect
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -24,4 +23,8 @@ rnd_fs, rnd_fs_taylor, rnd_fs_taylor_coeffs = random_func_and_taylor([x, x0], co
 
 ic(len(rnd_fs) == rnd_fs_amount)
 
-export_functions_and_taylor([rnd_fs, rnd_fs_taylor, rnd_fs_taylor_coeffs], "data.nosync/train.csv")
+_ = export_functions_and_taylor([rnd_fs, rnd_fs_taylor, rnd_fs_taylor_coeffs], "tests/data_tests.nosync/train.csv", verbose=True)
+try:
+    _ = export_functions_and_taylor([rnd_fs, rnd_fs_taylor, rnd_fs_taylor_coeffs], "tests/data_tests.nosync/train.csv", verbose=True, representation_type="banana")
+except ValueError as err:
+    print("ValueError:", err)
