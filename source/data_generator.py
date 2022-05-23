@@ -2,9 +2,14 @@ import sys
 import os
 import sympy
 from sympy import symbols, srepr, series, oo, zoo
+print("data_generator.py: current directory: ", os.getcwd())
 sys.path.append('../RandomFunctionGenerator/source')
 from RandomFunctionGenerator import generate_random_functions
 from tqdm import tqdm
+import logging
+
+logging.basicConfig(filename='/home/boggog/Documents/PhD-ML/TaylorExpansionML/logs/data_generator.log', encoding='utf-8', level=logging.DEBUG)
+logging.getLogger().setLevel(logging.WARNING)
 
 def factorial(n):
     if n <= 0:
@@ -16,14 +21,17 @@ def taylor(function, x0, n, x = sympy.Symbol('x')):
     i = 0
     p = 0
     while i <= n:
-        p = p + (function.diff(x, i).subs(x, x0))/(factorial(i))*(x - x0)**i
-        i += 1
+        try:
+            p = p + (function.diff(x, i).subs(x, x0))/(factorial(i))*(x - x0)**i
+            i += 1
+        except:
+            return sympy.nan
     return p
 
 def random_func_and_taylor(x_x0, consts, amount=1, max_depth=4, taylor_order=4, verbose=False):
     """
-    Generate random functions according to the RandomFunctionGenerator module.
-    Usually a random function won't have a well defined Taylor expansion. If this happens, then a new function will be generated.
+    Generate random functions according to the RandomFunctionGenerator module. Usually a random function won't have a
+    well-defined Taylor expansion. If this happens, then a new function will be generated.
 
     Arguments:
         - `x_x0`: [x, x0] where x is the sympy symbol of the variable of the functions. x0 is the expansion point
@@ -49,8 +57,17 @@ def random_func_and_taylor(x_x0, consts, amount=1, max_depth=4, taylor_order=4, 
         if f in rnd_fs:
             if verbose: print("function already exists, skipping")
             continue
-        f_taylor = taylor(f, x0, taylor_order, x)
-        if verbose: 
+
+        logging.debug(f)
+        try:
+            f_taylor = taylor(f, x0, taylor_order, x)
+        except:
+            logging.WARNING("Error in taylor(f). Don't know what happened, but the function was:")
+            # logging.WARNING(str(f))
+            continue
+        logging.debug(f_taylor)
+
+        if verbose:
             print("generated function:", f)
             print("taylor:", f_taylor)
         if f_taylor != sympy.nan and not f_taylor.has(oo, -oo, zoo, sympy.nan):
