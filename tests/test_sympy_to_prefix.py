@@ -63,9 +63,7 @@ def test_div():
     
     expr1_prefix = sympy_to_prefix(expr1)
     expr2_prefix = sympy_to_prefix(expr2)
-    expr3_prefix = sympy_to_prefix(expr3)
     assert expr1_prefix == ["mul", "x", 'pow', "y", '-1']
-    ic(expr2_prefix)
     assert expr2_prefix == ["mul", "x", 'mul', 'pow', "y", '-1', 'pow', 'z', '-1']
     
 

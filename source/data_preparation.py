@@ -242,3 +242,33 @@ def repeat_operator_until_correct_binary(op, args, ret=[]):
 
     return repeat_operator_until_correct_binary(op, args, ret)
 
+def format_integer(integer):
+    """take a sympy integer and format it as in 
+    https://arxiv.org/pdf/1912.01412.pdf
+
+    input:
+        integer: a `sympy.Integer` object, e.g. `sympy.Integer(-1)`
+
+    output:
+        ['int', sign_token, digit0, digit1, ...]
+        where sign_token is 's+' or 's-' 
+
+    Example: 
+        format_integer(sympy.Integer(-123))
+        >> ['int', 's-', '1', '2', '3']
+
+    Implementation notes:
+    Somehow Integer inherits from Rational in Sympy and a rational is p/q,
+    so integer.p is used to extract the number.
+    """
+    plus_sign = "s+"
+    minus_sign = "s-"
+    integer_start = "int"
+    abs_num = abs(integer.p)
+    is_neg = integer.could_extract_minus_sign()
+    sign = minus_sign if is_neg else plus_sign
+    digits = list(str(abs_num))
+
+    ret = [integer_start] + [sign] + digits
+
+    return ret 
