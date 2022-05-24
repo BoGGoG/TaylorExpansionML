@@ -166,7 +166,14 @@ def vectorize_ds(X_tokenized_str, model, sequence_length=25):
     X_vectorized = [pad_right(Xi, sequence_length, const=0) for Xi in X_vectorized]
     return X_vectorized
 
-atoms = [str, sp.core.symbol.Symbol, sp.core.Integer, sp.core.numbers.One, sp.core.numbers.NegativeOne]
+atoms = [
+        str,
+        sp.core.symbol.Symbol,
+        sp.core.Integer,
+        sp.core.numbers.One,
+        sp.core.numbers.NegativeOne,
+        sp.core.numbers.Exp1
+        ]
 
 def sympy_to_prefix(expression):
     """
@@ -185,7 +192,7 @@ def sympy_to_prefix_rec(expression, ret):
     """
     f = expression.func
     if f in atoms:
-        return ret+[expression]
+        return ret+[str(expression)]
     f_str = operators[f]
     f_nargs = operators_nargs[f_str]
     args = expression.args

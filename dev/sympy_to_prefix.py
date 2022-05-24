@@ -70,5 +70,7 @@ ic(sympy_to_prefix(expr2a))
 ic(sympy_to_prefix(expr2b))
 ic(sympy_to_prefix(expr2c))
 
+ic(x)
+ic(str(x))
 
 
