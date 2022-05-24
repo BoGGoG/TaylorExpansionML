@@ -17,7 +17,7 @@ import pytest
 x = sympy.Symbol("x")
 y = sympy.Symbol("y")
 
-def test_many_arguments_mult():
+def test_many_arguments_add():
     """
     Sympy would give ["add", "x", "y", "z"], but we need "add" to take exactly 2 arguments
     
@@ -29,8 +29,8 @@ def test_many_arguments_mult():
     expr2 = sympy.parsing.parse_expr("x+y+z")
     expr3 = sympy.parsing.parse_expr("x+y+z+3")
     expr4 = sympy.parsing.parse_expr("x+y+z+3+E")
-    expr5 = sympy.parsing.parse_expr("a+x+y+z+3+E")
-    expr6 = sympy.parsing.parse_expr("sin(x)+x+y+z+3+E")
+    expr5 = sympy.parsing.parse_expr("a-x+y+z+3+E")
+    expr6 = sympy.parsing.parse_expr("sin(x)+x+y+z-3+E")
 
     expr1_prefix = sympy_to_prefix(expr1)
     expr2_prefix = sympy_to_prefix(expr2)
@@ -40,12 +40,15 @@ def test_many_arguments_mult():
     expr6_prefix = sympy_to_prefix(expr6)
     assert expr1_prefix == ["add", "x", "y"]
     assert expr2_prefix == ["add", "x", "add", "y", "z"]
-    assert expr3_prefix ==  ['add', '3', 'add', 'x', 'add', 'y', 'z']
-    assert expr4_prefix ==  ['add', '3', 'add', 'E', 'add', 'x', 'add', 'y', 'z']
-    assert expr5_prefix ==  ['add', '3', 'add', 'E', 'add', 'a', 'add', 'x', 'add', 'y', 'z']
-    assert expr6_prefix ==  ['add', '3', 'add', 'E', 'add', 'x', 'add', 'y', 'add', 'z', 'sin', 'x']
+    assert expr3_prefix ==  ['add', 'int', 's+', '3', 'add', 'x', 'add', 'y', 'z']
+    assert expr4_prefix ==  ['add', 'int', 's+', '3', 'add', 'E', 'add', 'x', 'add', 'y', 'z']
+    ic(expr5_prefix)
+    assert expr5_prefix ==  ['add', 'int', 's+', '3', 'add', 'E', 'add', 'a', 'add', 'y', 'add', 'z',
+        'mul', 'int', 's-', '1', 'x']
+    ic(expr6_prefix)
+    assert expr6_prefix ==  ['add', 'int', 's-', '3', 'add', 'E', 'add', 'x', 'add', 'y', 'add', 'z', 'sin', 'x']
     
-def test_many_arguments_add():
+def test_many_arguments_mult():
     expr1 = sympy.parsing.parse_expr("x*y")
     expr2 = sympy.parsing.parse_expr("x*y*z")
     expr3 = sympy.parsing.parse_expr("x*y*z*3")
@@ -55,7 +58,7 @@ def test_many_arguments_add():
     expr3_prefix = sympy_to_prefix(expr3)
     assert expr1_prefix == ["mul", "x", "y"]
     assert expr2_prefix == ["mul", "x", "mul", "y", "z"]
-    assert expr3_prefix ==  ['mul', '3', 'mul', 'x', 'mul', 'y', 'z']
+    assert expr3_prefix ==  ['mul', 'int', 's+', '3', 'mul', 'x', 'mul', 'y', 'z']
 
 def test_div():
     expr1 = sympy.parsing.parse_expr("x/y")
@@ -63,7 +66,7 @@ def test_div():
     
     expr1_prefix = sympy_to_prefix(expr1)
     expr2_prefix = sympy_to_prefix(expr2)
-    assert expr1_prefix == ["mul", "x", 'pow', "y", '-1']
-    assert expr2_prefix == ["mul", "x", 'mul', 'pow', "y", '-1', 'pow', 'z', '-1']
+    assert expr1_prefix == ["mul", "x", 'pow', "y", 'int', 's-', '1']
+    assert expr2_prefix == ["mul", "x", 'mul', 'pow', "y", 'int', 's-', '1', 'pow', 'z', 'int', 's-', '1']
     
 

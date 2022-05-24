@@ -102,6 +102,26 @@ operators_nargs = {
     'h': 3,
 }
 
+# these will be converted to the integer format in `format_integer`
+numbers_types = [
+        sp.core.numbers.Integer,
+        sp.core.numbers.One,
+        sp.core.numbers.Zero,
+        sp.core.numbers.NegativeOne
+        ]
+
+# don't continue evaluating at these, but stop
+atoms = [
+        str,
+        sp.core.symbol.Symbol,
+        sp.core.Integer,
+        sp.core.numbers.One,
+        sp.core.numbers.NegativeOne,
+        sp.core.numbers.Exp1
+        ]
+
+
+
 def flatten(l, ltypes=(list, tuple)):
     """
     flatten a python list
@@ -166,15 +186,6 @@ def vectorize_ds(X_tokenized_str, model, sequence_length=25):
     X_vectorized = [pad_right(Xi, sequence_length, const=0) for Xi in X_vectorized]
     return X_vectorized
 
-atoms = [
-        str,
-        sp.core.symbol.Symbol,
-        sp.core.Integer,
-        sp.core.numbers.One,
-        sp.core.numbers.NegativeOne,
-        sp.core.numbers.Exp1
-        ]
-
 def sympy_to_prefix(expression):
     """
     Recursively go from a sympy expression to a prefix notation.
@@ -192,6 +203,8 @@ def sympy_to_prefix_rec(expression, ret):
     """
     f = expression.func
     if f in atoms:
+        if type(expression) in numbers_types:
+            return ret + format_integer(expression)
         return ret+[str(expression)]
     f_str = operators[f]
     f_nargs = operators_nargs[f_str]
