@@ -48,6 +48,8 @@ operators = {
     sp.Derivative: 'derivative',
 }
 
+operators_inv = {operators[key]: key for key in operators}
+
 operators_nargs = {
     # Elementary functions
     'add': 2,
@@ -117,9 +119,18 @@ atoms = [
         sp.core.Integer,
         sp.core.numbers.One,
         sp.core.numbers.NegativeOne,
-        sp.core.numbers.Exp1
+        sp.core.numbers.Exp1,
+        sp.core.numbers.Zero,
         ]
 
+variables = [
+        'x',
+        'y',
+        'z',
+        'a',
+        'b',
+        'c',
+        ]
 
 
 def flatten(l, ltypes=(list, tuple)):
@@ -285,3 +296,68 @@ def format_integer(integer):
     ret = [integer_start] + [sign] + digits
 
     return ret 
+
+def prefix_to_sympy(expr_arr):
+    if len(expr_arr) == 1:
+        return parse_if_str(expr_arr[0])
+    op_pos = rightmost_operand_pos(expr_arr)
+    if (op_pos == -1) | (op_pos == len(expr_arr)):
+        print("something went wrong, operator should not be at end of array")
+    op = expr_arr[op_pos]
+    if op in operators_inv.keys():
+        num_args = operators_nargs[op]
+        op = operators_inv[op]
+        args = expr_arr[op_pos+1:op_pos+num_args+1]
+        args = [parse_if_str(a) for a in args]
+        func = op(*args)
+        expr = expr_arr[0:op_pos] + [func] + expr_arr[op_pos+num_args+1:]
+        return prefix_to_sympy(expr)
+
+    elif op == 'int':
+        string_end_pos = rightmost_string_pos(expr_arr)
+        integer = unformat_integer(expr_arr[op_pos:string_end_pos+1])
+        expr_arr_new = expr_arr[0:op_pos] + [integer] + expr_arr[string_end_pos+1:]
+        
+        return prefix_to_sympy(expr_arr_new)
+    
+
+    return op
+
+def parse_if_str(x):
+    if isinstance(x, str):
+        return sp.parsing.parse_expr(x)
+    return x
+
+def rightmost_string_pos(expr_arr, pos=-1):
+    if isinstance(expr_arr[pos], str):
+        return len(expr_arr)+pos
+    else:
+        return rightmost_string_pos(expr_arr, pos-1)
+
+
+def rightmost_operand_pos(expr, pos=-1):
+    operators = list(operators_inv.keys()) + ["int"]
+    if expr[pos] in operators:
+        return len(expr) + pos
+    else:
+        return rightmost_operand_pos(expr, pos-1)
+
+def unformat_integer(arr):
+    """
+    inverse of the function format_integer.
+
+    input:
+        arr: array of strings just as the output of format_integer. E.g. ["int", "s+", "4", "2"]
+
+    output:
+        the correspinding sympy integer, e.g. sympy.Integer(42) in the above example.
+
+    The sign tokens are "s+" for positive integers and "s-" for negative. 0 comes with "s+", but does not matter.
+
+    """
+    sign_token = arr[1]
+    ret = "-" if sign_token == "s-" else ""
+    for s in arr[2:]:
+        ret += s
+
+    return sp.parsing.parse_expr(ret)
