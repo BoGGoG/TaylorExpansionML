@@ -54,27 +54,11 @@ def test_prefix_to_sympy():
     expr5 = sp.parsing.parse_expr("0")
     expr6 = sp.parsing.parse_expr("x**2 / y + exp(-y**2 + abs(-2*x))")
 
+    exprs = [expr0, expr1, expr2, expr3, expr4, expr5, expr6]
 
-    expr0_prefix = sympy_to_prefix(expr0)
-    expr1_prefix = sympy_to_prefix(expr1)
-    expr2_prefix = sympy_to_prefix(expr2)
-    expr3_prefix = sympy_to_prefix(expr3)
-    expr4_prefix = sympy_to_prefix(expr4)
-    expr5_prefix = sympy_to_prefix(expr5)
-    expr6_prefix = sympy_to_prefix(expr6)
+    exprs_prefix = [sympy_to_prefix(e) for e in exprs]
 
-    expr0_recovered = prefix_to_sympy(expr0_prefix)
-    expr1_recovered = prefix_to_sympy(expr1_prefix)
-    expr2_recovered = prefix_to_sympy(expr2_prefix)
-    expr3_recovered = prefix_to_sympy(expr3_prefix)
-    expr4_recovered = prefix_to_sympy(expr4_prefix)
-    expr5_recovered = prefix_to_sympy(expr5_prefix)
-    expr6_recovered = prefix_to_sympy(expr6_prefix)
+    exprs_recovered = [prefix_to_sympy(e) for e in exprs_prefix]
 
-    assert expr0 == expr0_recovered
-    assert expr1 == expr1_recovered
-    assert expr2 == expr2_recovered
-    assert expr3 == expr3_recovered
-    assert expr4 == expr4_recovered
-    assert expr5 == expr5_recovered
-    assert expr6 == expr6_recovered
+    for i in range(len(exprs)):
+        assert exprs[i] == exprs_recovered[i]
