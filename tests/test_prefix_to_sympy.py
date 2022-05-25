@@ -3,15 +3,34 @@ import sys
 import inspect
 from icecream import ic
 import sympy as sp
-import pytest
+from sympy import srepr
+from sympy import sympify
 
 script_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 root_dir = os.path.dirname(script_dir)
 sys.path.insert(0, root_dir)
 
 
-from source.data_preparation import format_integer, unformat_integer, sympy_to_prefix, prefix_to_sympy
+from source.data_preparation import format_integer, unformat_integer, sympy_to_prefix, prefix_to_sympy, format_number
 
+def test_unformat_number():
+    nums_str = [ 
+            "1",
+            "2",
+            "1/3",
+            "1/2",
+            "0",
+            "E"
+            ]
+    nums_sp = [sympify(x) for x in nums_str]
+    nums_formatted = [format_number(x) for x in nums_sp]
+    ic(nums_formatted[0])
+    nums_recovered = [prefix_to_sympy(x) for x in nums_formatted]
+    for i in range(len(nums_sp)):
+        assert nums_sp[i] == nums_recovered[i]
+        ic(nums_sp[i])
+        ic(nums_formatted[i])
+        ic(srepr(nums_recovered[i]))
 
 def test_unformat_integer():
     test_int1 = sp.parsing.parse_expr("1")
@@ -44,21 +63,47 @@ def test_unformat_integer():
 
     assert test_int2 != test_int_recovered1
 
-def test_prefix_to_sympy():
-    expr0 = sp.parsing.parse_expr("x+y+sin(3)")
-    expr1 = sp.parsing.parse_expr("x")
-    expr2 = sp.parsing.parse_expr("1")
-    expr3 = sp.parsing.parse_expr("x*y + 3")
-    expr4 = sp.parsing.parse_expr("-42")
-    # expr5 = sp.parsing.parse_expr("sin(cos(x**2))")
-    expr5 = sp.parsing.parse_expr("0")
-    expr6 = sp.parsing.parse_expr("x**2 / y + exp(-y**2 + abs(-2*x))")
-
-    exprs = [expr0, expr1, expr2, expr3, expr4, expr5, expr6]
-
+def test_prefix_to_sympy_functions():
+    """
+    transform below expressions to prefix using `sympy_to_prefix` 
+    and then recover them using `prefix_to_sympy`.
+    """
+    exprs = [ 
+            "x+y+sin(3)",
+            "x",
+            "1",
+            "1/2",
+            "x*y + 3",
+            "-42",
+            "0",
+            "x**2 / y + exp(-y**2 + abs(-2*x))",
+            "42*sin(cos(exp(abs(1/x) + 13) - atanh(y)))",
+            "sin(cos(x**2))",
+            "x/42",
+            "42/x",
+            "x/(42*y)",
+            "1/sin(32*x)",
+            "exp(1/2)",
+            "exp(-1/2)",
+            "exp(1)",
+            "exp(0)",
+            "exp(-1)",
+            "exp(sin(-1))",
+            "exp(sin(E))",
+            "log(x)",
+            "log(x**-1)",
+            "sin(x**32)",
+            "x/E",
+            "exp(-x**2 / 2)",
+            ]
+    exprs = [sympify(x) for x in exprs]
     exprs_prefix = [sympy_to_prefix(e) for e in exprs]
-
+    ic(exprs_prefix[0])
     exprs_recovered = [prefix_to_sympy(e) for e in exprs_prefix]
 
     for i in range(len(exprs)):
+        ic(i)
+        ic(exprs[i])
+        ic(exprs_prefix[i])
+        ic(exprs_recovered[i])
         assert exprs[i] == exprs_recovered[i]

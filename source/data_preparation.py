@@ -104,24 +104,22 @@ operators_nargs = {
     'h': 3,
 }
 
-# these will be converted to the integer format in `format_integer`
-numbers_types = [
+# these will be converted to the numbers format in `format_number`
+integers_types = [
         sp.core.numbers.Integer,
         sp.core.numbers.One,
+        sp.core.numbers.NegativeOne,
         sp.core.numbers.Zero,
-        sp.core.numbers.NegativeOne
         ]
+
+numbers_types = integers_types + [sp.core.numbers.Rational, sp.core.numbers.Half, sp.core.numbers.Exp1]
 
 # don't continue evaluating at these, but stop
 atoms = [
         str,
         sp.core.symbol.Symbol,
-        sp.core.Integer,
-        sp.core.numbers.One,
-        sp.core.numbers.NegativeOne,
         sp.core.numbers.Exp1,
-        sp.core.numbers.Zero,
-        ]
+        ] + numbers_types
 
 variables = [
         'x',
@@ -215,7 +213,7 @@ def sympy_to_prefix_rec(expression, ret):
     f = expression.func
     if f in atoms:
         if type(expression) in numbers_types:
-            return ret + format_integer(expression)
+            return ret + format_number(expression)
         return ret+[str(expression)]
     f_str = operators[f]
     f_nargs = operators_nargs[f_str]
@@ -265,6 +263,34 @@ def repeat_operator_until_correct_binary(op, args, ret=[]):
         args = args[:-1]
 
     return repeat_operator_until_correct_binary(op, args, ret)
+
+def format_number(number):
+    if type(number) in integers_types:
+        return format_integer(number)
+    elif type(number) == sp.core.numbers.Rational:
+        return format_rational(number)
+    elif type(number) == sp.core.numbers.Half:
+        return format_half()
+    elif type(number) == sp.core.numbers.Exp1:
+        return format_exp1()
+    else:
+        raise NotImplementedError
+
+def format_exp1():
+    return ['E']
+        
+def format_half():
+    """
+    for some reason in sympy 1/2 is its own object and not a rational.
+    This function formats it correctly like `format_rational`
+    """
+    return ['mul'] + ['int', 's+', '1'] + ['pow'] + ['int', 's+', '2'] + ["int", "s-", "1"]
+
+def format_rational(number):
+    # for some reason number.p is a string
+    p = sp.sympify(number.p)
+    q = sp.sympify(number.q)
+    return ['mul'] + format_integer(p) + ['pow'] + format_integer(q) + ['int', 's-', '1']
 
 def format_integer(integer):
     """take a sympy integer and format it as in 
@@ -317,9 +343,11 @@ def prefix_to_sympy(expr_arr):
         string_end_pos = rightmost_string_pos(expr_arr)
         integer = unformat_integer(expr_arr[op_pos:string_end_pos+1])
         expr_arr_new = expr_arr[0:op_pos] + [integer] + expr_arr[string_end_pos+1:]
-        
         return prefix_to_sympy(expr_arr_new)
-    
+    elif op in variables:
+        op = sp.sympify(op)
+        expr_arr_new = expr_arr[0:op_pos] + [op] + expr_arr[op_pos+1:]
+        return prefix_to_sympy(expr_arr_new)
 
     return op
 
@@ -336,7 +364,7 @@ def rightmost_string_pos(expr_arr, pos=-1):
 
 
 def rightmost_operand_pos(expr, pos=-1):
-    operators = list(operators_inv.keys()) + ["int"]
+    operators = list(operators_inv.keys()) + ["int"] + variables
     if expr[pos] in operators:
         return len(expr) + pos
     else:

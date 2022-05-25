@@ -3,16 +3,15 @@ import sys
 import inspect
 from icecream import ic
 import sympy
-from sympy.parsing.sympy_parser import repeated_decimals
+from sympy import srepr
+from sympy.core.sympify import sympify
 
 script_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 root_dir = os.path.dirname(script_dir)
 sys.path.insert(0, root_dir)
 
 
-from source.data_preparation import sympy_tokenize, sympy_tokenize_str, vectorize_ds, vectorize_sentence, pad_right, sympy_to_prefix, repeat_operator_until_correct_binary
-
-import pytest
+from source.data_preparation import sympy_tokenize, sympy_tokenize_str, vectorize_ds, vectorize_sentence, pad_right, sympy_to_prefix, repeat_operator_until_correct_binary, format_number
 
 x = sympy.Symbol("x")
 y = sympy.Symbol("y")
@@ -63,10 +62,38 @@ def test_many_arguments_mult():
 def test_div():
     expr1 = sympy.parsing.parse_expr("x/y")
     expr2 = sympy.parsing.parse_expr("x/y/z")
+    expr3 = sympy.parsing.parse_expr("-1/3")
+    expr4 = sympy.parsing.parse_expr("x/42")
+    # TODO: sadly x/42 first gets converted to 1/42 * x and won't give the nicer
+    # output ['div', 'x', 'int', 's+', '4', '2'], might want to fix this at some point
     
     expr1_prefix = sympy_to_prefix(expr1)
     expr2_prefix = sympy_to_prefix(expr2)
+    expr3_prefix = sympy_to_prefix(expr3)
+    expr4_prefix = sympy_to_prefix(expr4)
     assert expr1_prefix == ["mul", "x", 'pow', "y", 'int', 's-', '1']
     assert expr2_prefix == ["mul", "x", 'mul', 'pow', "y", 'int', 's-', '1', 'pow', 'z', 'int', 's-', '1']
+    assert expr3_prefix == ['mul', 'int', 's-', '1', 'pow', 'int', 's+', '3', 'int', 's-', '1']
+    assert expr4_prefix == ['mul', 'mul', 'int', 's+', '1', 'pow', 'int', 's+', '4', '2', 'int', 's-', '1', 'x']
     
+def test_format_number():
+    numbers_str = [ 
+            "1",
+            "-1",
+            "2",
+            "1/2",
+            "1/3",
+            "-1/2",
+            "-1/3",
+            "1/12",
+            "-1/12",
+            "0",
+            "E",
+            ]
+    numbers_sp = [sympify(x) for x in numbers_str]
+    numbers_formatted = [format_number(x) for x in numbers_sp]
+    for i in range(len(numbers_sp)):
+        ic(numbers_str[i])
+        ic(numbers_sp[i])
+        ic(numbers_formatted[i])
 

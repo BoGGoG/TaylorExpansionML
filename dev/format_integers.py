@@ -15,7 +15,7 @@ root_dir = os.path.dirname(script_dir)
 sys.path.insert(0, root_dir)
 
 
-from source.data_preparation import sympy_tokenize, sympy_tokenize_str, vectorize_ds, vectorize_sentence, pad_right, sympy_to_prefix, repeat_operator_until_correct_binary, format_integer
+from source.data_preparation import sympy_tokenize, sympy_tokenize_str, vectorize_ds, vectorize_sentence, pad_right, sympy_to_prefix, repeat_operator_until_correct_binary, format_integer, format_number
 
 test_int1 = sympy.parsing.parse_expr("1")
 test_int2 = sympy.parsing.parse_expr("2")
@@ -43,3 +43,4 @@ ic(format_integer(test_int5))
 ic(format_integer(test_int6))
 
 ic(sympy_to_prefix(test_int5))
+
