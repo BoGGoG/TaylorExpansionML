@@ -121,6 +121,7 @@ atoms = [
         sp.core.numbers.Exp1,
         ] + numbers_types
 
+# variables or constants
 variables = [
         'x',
         'y',
@@ -128,6 +129,8 @@ variables = [
         'a',
         'b',
         'c',
+        'd',
+        'E',
         ]
 
 

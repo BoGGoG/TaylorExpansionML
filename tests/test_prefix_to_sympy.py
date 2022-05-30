@@ -53,7 +53,7 @@ def test_unformat_integer():
     test_int_recovered4 = unformat_integer(test_int_formated4)
     test_int_recovered5 = unformat_integer(test_int_formated5)
     test_int_recovered6 = unformat_integer(test_int_formated6)
-
+ 
     assert test_int1 == test_int_recovered1
     assert test_int2 == test_int_recovered2
     assert test_int3 == test_int_recovered3
@@ -107,3 +107,15 @@ def test_prefix_to_sympy_functions():
         ic(exprs_prefix[i])
         ic(exprs_recovered[i])
         assert exprs[i] == exprs_recovered[i]
+
+def test_prefix_to_sympy_functions_2():
+    """
+    Here I always add functions that have caused problems and then I fix them.
+
+    - expr1: 'E' was not in the variables list
+    """
+    expr1 = sympify("x**4*(1/24 + E) + x**3/6 + x**2*(1/2 + E) + x + 1 + E")
+    expr_prefix1 = sympy_to_prefix(expr)
+    expr_recovered1 = prefix_to_sympy(expr_prefix)
+    assert expr_1 == expr_recovered1
+
