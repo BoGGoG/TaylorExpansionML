@@ -115,7 +115,31 @@ def test_prefix_to_sympy_functions_2():
     - expr1: 'E' was not in the variables list
     """
     expr1 = sympify("x**4*(1/24 + E) + x**3/6 + x**2*(1/2 + E) + x + 1 + E")
-    expr_prefix1 = sympy_to_prefix(expr)
-    expr_recovered1 = prefix_to_sympy(expr_prefix)
-    assert expr_1 == expr_recovered1
+    expr_prefix1 = sympy_to_prefix(expr1)
+    expr_recovered1 = prefix_to_sympy(expr_prefix1)
+    assert expr1 == expr_recovered1
+
+    expr2 = sympify("pi")
+    expr_prefix2 = sympy_to_prefix(expr2)
+    expr_recovered2 = prefix_to_sympy(expr_prefix2)
+    assert expr2 == expr_recovered2
+
+    expr3 = sp.core.numbers.pi
+    expr_prefix3 = sympy_to_prefix(expr3)
+
+
+    expr4 = sp.core.numbers.Pi
+    ic(expr4)
+    ic(srepr(expr4))
+    expr_prefix4 = sympy_to_prefix(expr4)
+    ic(expr_prefix4)
+    # expr_recovered4 = prefix_to_sympy(expr_prefix4)
+    # ic(expr_recovered4)
+
+    expr5 = sp.core.numbers.ImaginaryUnit
+    expr5 = sp.core.numbers.ImaginaryUnit
+    ic(expr5)
+    ic(srepr(expr5))
+    expr_prefix5 = sympy_to_prefix(expr5)
+    ic(expr_prefix5)
 

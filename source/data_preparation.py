@@ -112,13 +112,16 @@ integers_types = [
         sp.core.numbers.Zero,
         ]
 
-numbers_types = integers_types + [sp.core.numbers.Rational, sp.core.numbers.Half, sp.core.numbers.Exp1]
+numbers_types = integers_types + [sp.core.numbers.Rational,
+        sp.core.numbers.Half, sp.core.numbers.Exp1, sp.core.numbers.Pi,
+        sp.core.numbers.ImaginaryUnit]
 
 # don't continue evaluating at these, but stop
 atoms = [
         str,
         sp.core.symbol.Symbol,
         sp.core.numbers.Exp1,
+        sp.core.numbers.Pi,
         ] + numbers_types
 
 # variables or constants
@@ -213,7 +216,10 @@ def sympy_to_prefix_rec(expression, ret):
     Since in prefix notation with a fixed number of arguments for each function (given in `operators_nargs`),
     parentheses are not needed, we can flatten the list later.
     """
-    f = expression.func
+    if expression in [sp.core.numbers.Pi, sp.core.numbers.ImaginaryUnit]:
+        f = expression
+    else:
+        f = expression.func
     if f in atoms:
         if type(expression) in numbers_types:
             return ret + format_number(expression)
@@ -276,11 +282,21 @@ def format_number(number):
         return format_half()
     elif type(number) == sp.core.numbers.Exp1:
         return format_exp1()
+    elif type(number) == sp.core.numbers.Pi:
+        return format_pi()
+    elif type(number) == sp.core.numbers.ImaginaryUnit:
+        return format_imaginary_unit()
     else:
         raise NotImplementedError
 
 def format_exp1():
     return ['E']
+
+def format_pi():
+    return ['pi']
+
+def format_imaginary_unit():
+    return ['I']
         
 def format_half():
     """
